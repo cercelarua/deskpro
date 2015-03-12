@@ -38,9 +38,46 @@ class Calculator
         $operators = $stack = array();
         foreach ($tokens[0] as $tokenStr)
         {
+            $token = Token::get($tokenStr);
+
+            if (!$token instanceof OperatorAbstract)
+            {
+                array_push($stack, $token);
+            }
+            else
+            {
+                if (!count($operators))
+                {
+                    array_push($operators, $token);
+                }
+                else
+                {
+                    $topOperatorInStack = end($operators);
+
+                    if ($topOperatorInStack->getPrecedence() >= $token->getPrecedence())
+                    {
+                        do {
+                            array_push ($stack, array_pop($operators));
+                        }
+                        while (
+                            count($operators)
+                            &&
+                            $topOperatorInStack->getPrecedence() >= $token->getPrecedence()
+                        );
+                        array_push($operators, $token);
+                    }
+                    else
+                    {
+                        array_push($operators, $token);
+                    }
+
+
+                }
+            }
 
         }
 
+  	return $stack;
     }
 
 
