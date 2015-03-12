@@ -21,10 +21,30 @@ class Calculator
 
     public function evaluate($string)
     {
-        $this->_parseString($string);
-
+        $stack = $this->_parseString($string);
+        return $this->_compute($stack);
     }
 
+    private function _compute($stack)
+    {
+        $result = array();
+        foreach ($stack as $token)
+        {
+
+            if (!$token instanceof OperatorAbstract)
+            {
+                array_push ($result, $token);
+            }
+            else
+            {
+
+                $operationResult = $token->doOperation(array_pop($result), array_pop($result));
+                array_push ($result, $operationResult);
+            }
+        }
+
+        return $result[0];
+    }
 
 
     private function _parseString($string)
@@ -77,7 +97,9 @@ class Calculator
 
         }
 
-  	return $stack;
+        $stack = array_merge($stack, array_reverse($operators));
+
+        return $stack;
     }
 
 
